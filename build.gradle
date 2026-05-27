@@ -1,0 +1,60 @@
+plugins {
+    id 'java'
+    id "io.qameta.allure" version "2.11.0"
+}
+
+group = 'ru.karnausova'
+version = '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+ext {
+    playwrightVersion = "1.58.0"
+    aspectjweaverVersion = "1.9.21"
+    junitVersion = "5.10.0"
+    slf4jVersion = "2.0.7"
+    javafakerVersion = "1.0.2"
+    assertjVersion = "3.22.0"
+    allureJunit5Version = "2.30.0"
+}
+
+dependencies {
+    testImplementation(
+            "com.microsoft.playwright:playwright:$playwrightVersion",
+            "io.qameta.allure:allure-junit5:$allureJunit5Version",
+            "org.junit.jupiter:junit-jupiter:$junitVersion",
+            "org.slf4j:slf4j-simple:$slf4jVersion",
+            "com.github.javafaker:javafaker:$javafakerVersion",
+            "org.aspectj:aspectjweaver:$aspectjweaverVersion",
+            "org.assertj:assertj-core:$assertjVersion"
+    )
+}
+
+allure {
+    report {
+        version.set("2.30.0")
+    }
+    adapter {
+        aspectjWeaver.set(true)
+        frameworks {
+            junit5 {
+                adapterVersion.set("2.30.0")
+            }
+        }
+    }
+}
+
+tasks.withType(Test) {
+    useJUnitPlatform()
+    systemProperty "allure.results.directory", "build/allure-results"
+    systemProperties(System.getProperties())
+
+    testLogging {
+        lifecycle {
+            events "started", "skipped", "failed", "standard_error", "standard_out"
+            exceptionFormat "short"
+        }
+    }
+}
